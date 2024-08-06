@@ -5,6 +5,8 @@ from datetime import datetime
 import re
 import sys
 
+VERSION = "1.0.0"
+
 def parse_date_from_filename(filename):
     try:
         date_str = os.path.splitext(os.path.basename(filename))[0].split('_')[-1]
@@ -33,7 +35,7 @@ def create_converters(fields_to_diff):
     converters[7] = str
     return converters
 
-def calculate_diff(old_snapshot_path, new_snapshot_path, cutoff_date, output_path=None):
+def calculate_diff(old_snapshot_path, new_snapshot_path, cutoff_date):
     fields_to_diff = [2, 3, 4, 13]
     converters = create_converters(fields_to_diff)
 
@@ -62,19 +64,15 @@ def calculate_diff(old_snapshot_path, new_snapshot_path, cutoff_date, output_pat
     # 一時計算カラムを削除
     combined_data = combined_data.drop(columns=['timestamp', 'is_new'], errors='ignore')
 
-    if output_path:
-        combined_data.to_csv(output_path, sep='\t', index=True, header=False)
-        total_count = len(combined_data)
-        new_count = len(new_entries)
-        print(f"出力件数: {total_count} 件 (新規投稿: {new_count} 件)")
-    else:
-        combined_data.to_csv(sys.stdout, sep='\t', index=True, header=False)
+    return combined_data, len(new_entries)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='スナップショットファイル間の差分を計算するスクリプト')
     parser.add_argument('old_snapshot_path', help='古いスナップショットファイルのパス')
     parser.add_argument('new_snapshot_path', help='新しいスナップショットファイルのパス')
     parser.add_argument('-o', '--output', help='結果を出力するファイルのパス')
+    parser.add_argument('-v', '--version', action='version', version=f"%(prog)s {VERSION}")
+    parser.add_argument('--sort-desc', action='store_true', help='カラム2の降順でソートして出力')
 
     args = parser.parse_args()
     
@@ -87,4 +85,14 @@ if __name__ == "__main__":
     else:
         cutoff_date = old_date.replace(hour=5, minute=0, second=0, microsecond=0)
 
-    calculate_diff(args.old_snapshot_path, args.new_snapshot_path, cutoff_date, args.output)
+    combined_data, new_entries_count = calculate_diff(args.old_snapshot_path, args.new_snapshot_path, cutoff_date)
+
+    if args.sort_desc:
+        combined_data.sort_values(by=2, ascending=False, inplace=True)
+
+    if args.output:
+        combined_data.to_csv(args.output, sep='\t', index=True, header=False)
+        total_count = len(combined_data)
+        print(f"出力件数: {total_count} 件 (新規投稿: {new_entries_count} 件)")
+    else:
+        combined_data.to_csv(sys.stdout, sep='\t', index=True, header=False)

@@ -37,7 +37,6 @@ class TestCalculateDiff(unittest.TestCase):
     def setUp(self):
         self.old_file = 'temp_20240601.txt'
         self.new_file = 'temp_20240610.txt'
-        self.output_file = 'temp_output.txt'
         old_cutoff_date = '2024年06月01日 05：00：00'
         new_post_date = '2024年06月02日 10：00：00'
         removed_before_cutoff_date = '2024年05月31日 23：59：59'
@@ -82,14 +81,10 @@ class TestCalculateDiff(unittest.TestCase):
     def tearDown(self):
         os.remove(self.old_file)
         os.remove(self.new_file)
-        if os.path.exists(self.output_file):
-            os.remove(self.output_file)
 
     def test_calculate_diff(self):
         cutoff_date = datetime(2024, 6, 1, 5, 0, 0)
-        calculate_diff(self.old_file, self.new_file, cutoff_date, self.output_file)
-
-        result_data = pd.read_csv(self.output_file, sep='\t', header=None)
+        result_data, new_entries_count = calculate_diff(self.old_file, self.new_file, cutoff_date)
 
         expected_data = pd.DataFrame({
             0: ['id1', 'id3', 'id4'],  # id5はcutoff_dateより古いので含まれない
@@ -107,6 +102,8 @@ class TestCalculateDiff(unittest.TestCase):
             12: ['dummy'] * 3,
             13: [100, 200, 5000]   # 差分: 10100-10000, 12200-12000, 5000
         })
+        expected_data.set_index(0, inplace=True)
+        expected_data.columns = expected_data.columns.astype(object)
 
         # データフレームを比較
         try:
@@ -121,6 +118,8 @@ class TestCalculateDiff(unittest.TestCase):
             print("\nDifferences:")
             print(result_data.compare(expected_data))
             raise e  # エラーを再度投げてテストを失敗させる
+
+        self.assertEqual(new_entries_count, 1)
 
 if __name__ == '__main__':
     unittest.main()
