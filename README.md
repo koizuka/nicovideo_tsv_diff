@@ -21,15 +21,12 @@ pip install pandas
 ```bash
 $ time python nicovideo_tsv_diff.py Total_API_20240603.txt Total_API_20240610.txt -o temp.tsv --sort-desc
 出力件数: 1251492 件 (新規投稿: 465 件)
-
-real    1m12.209s
-user    0m0.015s
-sys     0m0.016s
 ```
 
 ```bash
 $ python nicovideo_tsv_diff.py --help
-usage: nicovideo_tsv_diff.py [-h] [-o OUTPUT] [-v] [--sort-desc] old_snapshot_path new_snapshot_path
+usage: nicovideo_tsv_diff.py [-h] [-o OUTPUT] [-v] [--sort-desc]
+                             old_snapshot_path new_snapshot_path
 
 スナップショットファイル間の差分を計算するスクリプト
 
@@ -43,7 +40,6 @@ options:
                         結果を出力するファイルのパス
   -v, --version         show program's version number and exit
   --sort-desc           カラム2の降順でソートして出力
-
 ```
 
 ```bash
@@ -54,5 +50,5 @@ nicovideo_tsv_diff.py 1.0.1
 ## ユニットテスト
 
 ```bash
-python -m unittest test_nicovideo_tsv_diff.py
+$ python -m unittest test_nicovideo_tsv_diff.py
 ```
