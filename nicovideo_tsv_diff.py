@@ -5,7 +5,7 @@ from datetime import datetime
 import re
 import sys
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
 def parse_date_from_filename(filename):
     try:
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     combined_data, new_entries_count = calculate_diff(args.old_snapshot_path, args.new_snapshot_path, cutoff_date)
 
     if args.sort_desc:
-        combined_data.sort_values(by=2, ascending=False, inplace=True)
+        combined_data.sort_values(by=[2, 4, 13, 3, 0], ascending=[False, False, False, False, True], inplace=True)
 
     if args.output:
         combined_data.to_csv(args.output, sep='\t', index=True, header=False)

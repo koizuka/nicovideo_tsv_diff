@@ -48,7 +48,7 @@ options:
 
 ```bash
 $ python nicovideo_tsv_diff.py -v
-nicovideo_tsv_diff.py 1.0.0
+nicovideo_tsv_diff.py 1.0.1
 ```
 
 ## ユニットテスト
