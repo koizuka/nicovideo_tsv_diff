@@ -5,7 +5,7 @@ from datetime import datetime
 import re
 import sys
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 def parse_date_from_filename(filename):
     try:
@@ -33,6 +33,7 @@ def remove_commas_and_convert(value):
 def create_converters(fields_to_diff):
     converters = {field: remove_commas_and_convert for field in fields_to_diff}
     converters[7] = str
+    converters[12] = str
     return converters
 
 def calculate_diff(old_snapshot_path, new_snapshot_path, cutoff_date):
